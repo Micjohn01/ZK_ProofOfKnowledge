@@ -15,9 +15,9 @@ impl Polynomial {
     }
 
     fn lagrange_interpolation(points: &[(f64, f64)]) -> Self {
-        let mut coefficients = vec![0.0; points.len()];
+        let mut coefficients: Vec<f64> = vec![0.0; points.len()];
         for (i, (xi, yi)) in points.iter().enumerate() {
-            let mut term = vec![1.0];
+            let mut term: Vec<f64> = vec![1.0];
             for (j, (xj, _)) in points.iter().enumerate() {
                 if i != j {
                     term = multiply_polynomials(&term, &[-xj / (xi - xj), 1.0 / (xi - xj)]);

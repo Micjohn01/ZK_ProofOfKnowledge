@@ -18,7 +18,7 @@ fn generate_shares<F: Field + UniformRand>(
     for _ in 1..threshold {
         coefficients.push(F::rand(&mut rng));
     }
-
+ 
     let mut shares: HashMap<F, F> = HashMap::new();
     for i in 1..=num_shares {
         let x: F = F::from(i as u64); // Let's convert explicitly
