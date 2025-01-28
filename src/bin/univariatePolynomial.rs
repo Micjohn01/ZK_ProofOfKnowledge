@@ -57,6 +57,29 @@ fn main () {
 
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sparse_polynomial_evaluation() {
+        let poly = UnivariatePolynomial::new(vec![(0, 1.0), (1, 2.0), (2, 3.0)]); // P(x) = 3x^2 + 2x + 1
+        assert_eq!(poly.evaluate(2.0), 17.0); // P(2) = 3*(4) + 2*(2) + 1 = 17
+        assert_eq!(poly.evaluate(0.0), 1.0);  // P(0) = 1
+    }
+
+    #[test]
+    fn test_sparse_lagrange_interpolation() {
+        let points = vec![(1.0, 1.0), (2.0, 4.0), (3.0, 9.0)]; // Points from y = x^2
+        let poly = UnivariatePolynomial::lagrange_interpolation(&points);
+
+        // Verify that the interpolated polynomial passes through the given points
+        for (x, y) in points {
+            assert!((poly.evaluate(x) - y).abs() < 1e-6); // Allow for floating-point precision errors
+        }
+    }
+}
+
 
 
 
