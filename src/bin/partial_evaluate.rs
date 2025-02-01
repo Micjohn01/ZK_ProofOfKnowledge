@@ -124,3 +124,58 @@ mod tests {
         assert_eq!(poly.num_vars, 0);
         assert_eq!(poly.evaluate(&[]), 0.0); // Evaluates to 0
     }
+
+    // Test 3: Hypercube generation
+    #[test]
+    fn test_hypercube_generation() {
+        let poly = MultilinearPolynomial::new(HashMap::new()); // num_vars = 0
+        assert_eq!(poly.generate_hypercube(), vec![vec![]]); // 2^0 = 1 point
+
+        let mut coefficients = HashMap::new();
+        coefficients.insert(vec![0], 1.0); // 1 variable
+        let poly = MultilinearPolynomial::new(coefficients);
+        assert_eq!(poly.generate_hypercube(), vec![vec![0], vec![1]]); // 2^1 = 2 points
+    }
+
+    // Test 4: Polynomial evaluation
+    #[test]
+    fn test_evaluation() {
+        // P(a, b) = 2ab + 3b
+        let mut coefficients = HashMap::new();
+        coefficients.insert(vec![0, 1], 2.0);
+        coefficients.insert(vec![1], 3.0);
+        let poly = MultilinearPolynomial::new(coefficients);
+
+        // Test all points
+        assert_eq!(poly.evaluate(&[0, 0]), 0.0);
+        assert_eq!(poly.evaluate(&[0, 1]), 3.0);
+        assert_eq!(poly.evaluate(&[1, 0]), 0.0);
+        assert_eq!(poly.evaluate(&[1, 1]), 5.0); // 2*1*1 + 3*1 = 5
+    }
+
+    // Test 5: Edge interpolation
+    #[test]
+    fn test_edge_interpolation() {
+        // P(a, b, c) = 2ab + 3bc
+        let mut coefficients = HashMap::new();
+        coefficients.insert(vec![0, 1], 2.0);
+        coefficients.insert(vec![1, 2], 3.0);
+        let poly = MultilinearPolynomial::new(coefficients);
+
+        let edges = poly.interpolate_edges();
+        
+        // Check edge [1,1,0] → [1,1,1]
+        let edge_2_5 = edges.iter().find(|(p1, p2, _, _)| 
+            p1 == &vec![1, 1, 0] && p2 == &vec![1, 1, 1]
+        ).unwrap();
+        assert_eq!(edge_2_5.2, 2.0); // y1 = 2
+        assert_eq!(edge_2_5.3, 5.0); // y2 = 5
+
+        // Check edge [0,1,1] → [1,1,1]
+        let edge_3_5 = edges.iter().find(|(p1, p2, _, _)| 
+            p1 == &vec![0, 1, 1] && p2 == &vec![1, 1, 1]
+        ).unwrap();
+        assert_eq!(edge_3_5.2, 3.0); // y1 = 3
+        assert_eq!(edge_3_5.3, 5.0); // y2 = 5
+    }
+}
