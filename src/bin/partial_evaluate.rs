@@ -100,3 +100,27 @@ fn main() {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Test 1: Verify num_vars is correctly inferred
+    #[test]
+    fn test_num_vars_inference() {
+        let mut coefficients = HashMap::new();
+        coefficients.insert(vec![0, 2], 1.0); // Variables 0 and 2 (implies 3 variables)
+        coefficients.insert(vec![1, 3], 2.0); // Variables 1 and 3 (implies 4 variables)
+        
+        let poly = MultilinearPolynomial::new(coefficients);
+        assert_eq!(poly.num_vars, 4); // Max index is 3 → 3 + 1 = 4
+    }
+
+    // Test 2: Empty polynomial
+    #[test]
+    fn test_empty_polynomial() {
+        let coefficients = HashMap::new();
+        let poly = MultilinearPolynomial::new(coefficients);
+        assert_eq!(poly.num_vars, 0);
+        assert_eq!(poly.evaluate(&[]), 0.0); // Evaluates to 0
+    }
