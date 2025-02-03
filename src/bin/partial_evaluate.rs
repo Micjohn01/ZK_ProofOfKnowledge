@@ -44,7 +44,7 @@ impl MultilinearPolynomial {
         if n == 0 {
             return vec![vec![]];
         }
-        let smaller = self.generate_hypercube(n - 1);
+        let smaller = self.generate_hypercube();
         let mut hypercube = Vec::new();
         for mut point in smaller {
             let mut point_zero = point.clone();

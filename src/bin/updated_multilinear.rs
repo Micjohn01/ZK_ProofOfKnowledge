@@ -119,6 +119,11 @@ fn main (){
 
 mod tests {
     use super::*;
+    use ark_bn254::Fr;
+
+    fn to_field(input: Vec<u64>) -> Vec<Fr> {
+        input.into_iter().map(|v| Fr::from(v)).collect()
+    }
 
     #[test]
     fn bit_insertion() {
@@ -134,5 +139,13 @@ mod tests {
         let pairs = pairs(0, 3);
         dbg!(&pairs);
         assert_eq!(pairs[0], (0, 4));
+    }
+
+    #[test]
+    fn test_partial_evaluate() {
+        // 2ab + 3bc
+        let polynomial = MultilinearPolynomial::new(3, to_field(vec![0_u64,0,0,3,0,0,2,5]));
+        assert_eq!(polynomial.partial_evaluate(2, &Fr::from(3)).evals, to_field(vec![0, 9, 0, 11]));
+        assert_eq!(polynomial.partial_evaluate(1, &Fr::from(3)).evals, to_field(vec![0, 9, 6, 15]));
     }
 }
