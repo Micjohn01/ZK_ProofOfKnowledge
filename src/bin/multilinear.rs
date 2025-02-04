@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-struct MultilinearPolynomial {
+pub struct MultilinearPolynomial {
     coefficients: HashMap<Vec<usize>, f64>,
 }
 

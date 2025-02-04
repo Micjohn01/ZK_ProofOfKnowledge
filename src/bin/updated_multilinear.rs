@@ -5,9 +5,9 @@ use std::result;
 use ark_ff::PrimeField;
 
 #[derive(Clone)]
-struct MultilinearPolynomial<F: PrimeField> {
-    evals: Vec<F>,
-    n_vars: usize,
+pub(crate) struct MultilinearPolynomial<F: PrimeField> {
+    pub(crate)evals: Vec<F>,
+    pub(crate)n_vars: usize,
 }
 
 impl<F: PrimeField> MultilinearPolynomial<F> {
