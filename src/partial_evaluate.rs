@@ -80,26 +80,26 @@ impl MultilinearPolynomial {
     }
 }
 
-fn main() {
-    // Example: 4-variable polynomial (2ab + 3bc + 4cd)
-    let mut coefficients = HashMap::new();
-    coefficients.insert(vec![0, 1], 2.0); // 2ab
-    coefficients.insert(vec![1, 2], 3.0); // 3bc
-    coefficients.insert(vec![2, 3], 4.0); // 4cd
+// fn main() {
+//     // Example: 4-variable polynomial (2ab + 3bc + 4cd)
+//     let mut coefficients = HashMap::new();
+//     coefficients.insert(vec![0, 1], 2.0); // 2ab
+//     coefficients.insert(vec![1, 2], 3.0); // 3bc
+//     coefficients.insert(vec![2, 3], 4.0); // 4cd
 
-    let polynomial = MultilinearPolynomial::new(coefficients);
+//     let polynomial = MultilinearPolynomial::new(coefficients);
 
-    // Generate all edges and their interpolations
-    let edges = polynomial.interpolate_edges();
+//     // Generate all edges and their interpolations
+//     let edges = polynomial.interpolate_edges();
 
-    // Print interpolations for edges of interest
-    for (p1, p2, y1, y2) in edges {
-        println!(
-            "Edge {:?} → {:?}: Linear form = {} + r({} - {}) = {} + {}r",
-            p1, p2, y1, y2, y1, y1, y2 - y1
-        );
-    }
-}
+//     // Print interpolations for edges of interest
+//     for (p1, p2, y1, y2) in edges {
+//         println!(
+//             "Edge {:?} → {:?}: Linear form = {} + r({} - {}) = {} + {}r",
+//             p1, p2, y1, y2, y1, y1, y2 - y1
+//         );
+//     }
+// }
 
 #[cfg(test)]
 mod tests {

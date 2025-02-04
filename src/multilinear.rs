@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-pub struct MultilinearPolynomial {
+pub struct MultiPoly {
     coefficients: HashMap<Vec<usize>, f64>,
 }
 
-impl MultilinearPolynomial {
+impl MultiPoly {
     fn new(coefficients: HashMap<Vec<usize>, f64>) -> Self {
-        MultilinearPolynomial {coefficients}
+        MultiPoly {coefficients}
     }
 
 
@@ -45,25 +45,25 @@ fn generate_hypercube(n: usize) -> Vec<Vec<u8>> {
 
 
 
-fn main() {
-    // Define the polynomial: 2ab + 3bc + 2da
-    let mut coefficients: HashMap<Vec<usize>, f64> = HashMap::new();
-    coefficients.insert(vec![0, 1], 2.0); // 2ab (variables a and b)
-    coefficients.insert(vec![1, 2], 3.0); // 3bc (variables b and c)
-    coefficients.insert(vec![3, 0], 2.0); // 2da (variables d and a)
+// fn main() {
+//     // Define the polynomial: 2ab + 3bc + 2da
+//     let mut coefficients: HashMap<Vec<usize>, f64> = HashMap::new();
+//     coefficients.insert(vec![0, 1], 2.0); // 2ab (variables a and b)
+//     coefficients.insert(vec![1, 2], 3.0); // 3bc (variables b and c)
+//     coefficients.insert(vec![3, 0], 2.0); // 2da (variables d and a)
 
-    let polynomial: MultilinearPolynomial = MultilinearPolynomial::new(coefficients);
+//     let polynomial: MultiPoly = MultiPoly::new(coefficients);
 
-    // Generate the Boolean hypercube for 4 variables (a, b, c, d)
-    let n = 4;
-    let hypercube: Vec<Vec<u8>> = generate_hypercube(n);
+//     // Generate the Boolean hypercube for 4 variables (a, b, c, d)
+//     let n = 4;
+//     let hypercube: Vec<Vec<u8>> = generate_hypercube(n);
 
-    println!("Evaluating polynomial 2ab + 3bc + 2da over the Boolean hypercube:");
-    for point in hypercube {
-        let value: f64 = polynomial.evaluate(&point);
-        println!("Point {:?} -> {}", point, value);
-    }
-}
+//     println!("Evaluating polynomial 2ab + 3bc + 2da over the Boolean hypercube:");
+//     for point in hypercube {
+//         let value: f64 = polynomial.evaluate(&point);
+//         println!("Point {:?} -> {}", point, value);
+//     }
+// }
 
 #[cfg(test)]
 mod tests {
@@ -91,7 +91,7 @@ mod tests {
         coefficients.insert(vec![1, 2], 3.0); // 3bc
         coefficients.insert(vec![3, 0], 2.0); // 2da
 
-        let polynomial = MultilinearPolynomial::new(coefficients);
+        let polynomial = MultiPoly::new(coefficients);
 
         // Test evaluation at specific points
         assert_eq!(polynomial.evaluate(&[0, 0, 0, 0]), 0.0); // All variables are 0

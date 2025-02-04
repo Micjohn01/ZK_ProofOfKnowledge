@@ -11,7 +11,7 @@ pub(crate) struct MultilinearPolynomial<F: PrimeField> {
 }
 
 impl<F: PrimeField> MultilinearPolynomial<F> {
-    fn new(n_vars: usize, evaluations: Vec<F>) -> Self {
+    pub(crate) fn new(n_vars: usize, evaluations: Vec<F>) -> Self {
         if evaluations.len() != 1 << n_vars {
             panic!("You are doing it wrong"); 
         }
@@ -24,7 +24,7 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
 
     // f(a,b,c)
     // f(3,2,4) -> [3,2,4] = These are the assignments
-    fn evaluate(&self, assignments: &[F]) -> F {
+    pub fn evaluate(&self, assignments: &[F]) -> F {
         if assignments.len() != self.n_vars {
             panic! ("You are still doing it all wrong");
         }
@@ -39,7 +39,7 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
         
     }
 
-    fn partial_evaluate(&self, index: usize, value:&F) -> Self{
+    pub fn partial_evaluate(&self, index: usize, value:&F) -> Self{
         // USe index to generate  pairing
         // linear interpolate and evaluate
 
@@ -71,7 +71,7 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
     // 1 - 01
     // 2 - 10
     // 3 - 11......The index here is starting from the front.
-    fn pairs(index: usize, n_vars: usize) -> Vec<(usize, usize)> { 
+    pub fn pairs(index: usize, n_vars: usize) -> Vec<(usize, usize)> { 
         let mut result =  vec![];
         let target_hypercube =  n_vars - 1;
         for val in 0..(1 << target_hypercube) {
@@ -111,17 +111,15 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
     }
 
 
-fn main (){
-    
-}
+
 
 #[cfg(test)]
 
-mod tests {
+pub(crate) mod tests {
     use super::*;
     use ark_bn254::Fr;
 
-    fn to_field(input: Vec<u64>) -> Vec<Fr> {
+    pub(crate) fn to_field(input: Vec<u64>) -> Vec<Fr> {
         input.into_iter().map(|v| Fr::from(v)).collect()
     }
 

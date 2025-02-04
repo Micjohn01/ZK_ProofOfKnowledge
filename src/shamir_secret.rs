@@ -53,26 +53,26 @@ fn reconstruct_secret<F: PrimeField>(shares: &HashMap<F, F>) -> F {
     secret
 }
 
-fn main() {
-    // We are defining the secret as a field element
-    let secret = FieldElement::from(42u64); // Explicit type for clarity
-    let threshold = 3;
-    let num_shares = 5;
+// fn main() {
+//     // We are defining the secret as a field element
+//     let secret = FieldElement::from(42u64); // Explicit type for clarity
+//     let threshold = 3;
+//     let num_shares = 5;
 
-    // Generate shares
-    let shares = generate_shares(secret, threshold, num_shares);
-    println!("Shares: {:?}", shares);
+//     // Generate shares
+//     let shares = generate_shares(secret, threshold, num_shares);
+//     println!("Shares: {:?}", shares);
 
-    // Taking a subset of the shares to reconstruct the secret
-    let subset_of_shares: HashMap<_, _> = shares.iter().take(threshold).map(|(&x, &y)| (x, y)).collect();
+//     // Taking a subset of the shares to reconstruct the secret
+//     let subset_of_shares: HashMap<_, _> = shares.iter().take(threshold).map(|(&x, &y)| (x, y)).collect();
 
-    // Reconstructing the secret
-    let reconstructed_secret = reconstruct_secret(&subset_of_shares);
-    println!("Reconstructed Secret: {}", reconstructed_secret);
+//     // Reconstructing the secret
+//     let reconstructed_secret = reconstruct_secret(&subset_of_shares);
+//     println!("Reconstructed Secret: {}", reconstructed_secret);
 
-    // Asserting that the original secret matches the reconstructed secret
-    assert_eq!(secret, reconstructed_secret);
-}
+//     // Asserting that the original secret matches the reconstructed secret
+//     assert_eq!(secret, reconstructed_secret);
+// }
 
 #[cfg(test)]
 mod tests {
@@ -168,5 +168,5 @@ mod tests {
             assert_eq!(secret, reconstructed_secret);
         }
     }
-}
 
+}

@@ -41,19 +41,19 @@ fn multiply_polynomials(a: &[f64], b: &[f64]) -> Vec<f64> {
     result
 }
 
-fn main() {
-    // Example: Represent P(x) = 3x^2 + 2x + 1
-    let poly = Polynomial::new(vec![1.0, 2.0, 3.0]);
-    println!("P(2) = {}", poly.evaluate(2.0)); // Should print 17.0
+// fn main() {
+//     // Example: Represent P(x) = 3x^2 + 2x + 1
+//     let poly = Polynomial::new(vec![1.0, 2.0, 3.0]);
+//     println!("P(2) = {}", poly.evaluate(2.0)); // Should print 17.0
 
-    // Example: Interpolate points (1, 1), (2, 4), (3, 9)
-    let points = vec![(1.0, 1.0), (2.0, 4.0), (3.0, 9.0)];
-    let interpolated_poly = Polynomial::lagrange_interpolation(&points);
-    println!(
-        "Interpolated polynomial evaluated at x = 2: {}",
-        interpolated_poly.evaluate(2.0)
-    ); // Should print 4.0
-}
+//     // Example: Interpolate points (1, 1), (2, 4), (3, 9)
+//     let points = vec![(1.0, 1.0), (2.0, 4.0), (3.0, 9.0)];
+//     let interpolated_poly = Polynomial::lagrange_interpolation(&points);
+//     println!(
+//         "Interpolated polynomial evaluated at x = 2: {}",
+//         interpolated_poly.evaluate(2.0)
+//     ); // Should print 4.0
+// }
 
 
 #[cfg(test)]

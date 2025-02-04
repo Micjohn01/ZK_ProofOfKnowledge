@@ -36,6 +36,3 @@ impl Transcript {
 }
 
 
-fn main() {
-
-}
