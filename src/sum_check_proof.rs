@@ -59,3 +59,39 @@ pub fn verify_proof<F: PrimeField>(poly: &MultiPoly<F>, proof: &SumcheckProof<F>
 
     claimed_sum == poly.evaluate(&challenges)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::Fr;
+
+    fn to_field(values: Vec<u64>) -> Vec<Fr> {
+        values.into_iter().map(Fr::from).collect()
+    }
+
+    #[test]
+    fn test_generate_proof() {
+        let poly = MultiPoly::new(2, to_field(vec![2, 4, 6, 8]));
+        let claimed_sum = poly.coefficients.iter().sum();
+        let proof = generate_proof(&poly, claimed_sum);
+        assert_eq!(proof.round_polynomials.len(), 2);
+    }
+
+    #[test]
+    fn test_verify_valid_proof() {
+        let poly = MultiPoly::new(2, to_field(vec![2, 4, 6, 8]));
+        let claimed_sum = poly.coefficients.iter().sum();
+        let proof = generate_proof(&poly, claimed_sum);
+        assert!(verify_proof(&poly, &proof));
+    }
+
+    #[test]
+    fn test_verify_invalid_proof() {
+        let poly = MultiPoly::new(2, to_field(vec![2, 4, 6, 8]));
+        let mut proof = generate_proof(&poly, Fr::from(100)); // Incorrect sum
+        assert!(!verify_proof(&poly, &proof));
+
+        proof.round_polynomials[0] = [Fr::from(1), Fr::from(1)]; // Corrupting proof
+        assert!(!verify_proof(&poly, &proof));
+    }
+}

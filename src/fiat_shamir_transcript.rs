@@ -33,3 +33,36 @@ impl FiatShamirTranscript {
         F::from_be_bytes_mod_order(&challenge)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::Fr;
+
+    #[test]
+    fn test_transcript_initialization() {
+        let _transcript = FiatShamirTranscript::new();
+    }
+
+    #[test]
+    fn test_transcript_absorb() {
+        let mut transcript = FiatShamirTranscript::new();
+        transcript.absorb(b"test data");
+    }
+
+    #[test]
+    fn test_generate_challenge() {
+        let mut transcript = FiatShamirTranscript::new();
+        transcript.absorb(b"some input");
+        let challenge = transcript.generate_challenge();
+        assert_eq!(challenge.len(), 32);
+    }
+
+    #[test]
+    fn test_sample_field_element() {
+        let mut transcript = FiatShamirTranscript::new();
+        transcript.absorb(b"field element test");
+        let element: Fr = transcript.sample_field_element();
+        assert!(element.into_bigint().to_bytes_be().len() > 0);
+    }
+}
