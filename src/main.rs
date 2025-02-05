@@ -7,9 +7,14 @@ mod multilinear;
 mod transcript;
 mod shamir_secret;
 mod partial_evaluate;
+mod fiat_shamir_transcript;
+mod multi_poly;
+mod sum_check_proof;
 
 use updated_multilinear::*;
 
 fn main() {
     println!("Hello, world!");
 }
+
+

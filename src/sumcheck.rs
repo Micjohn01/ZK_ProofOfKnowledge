@@ -94,7 +94,7 @@ mod test {
         let poly = 
         MultilinearPolynomial::new(3, vec![Fr::from(0), Fr::from(0), Fr::from(0), Fr::from(3), Fr::from(0), Fr::from(0), Fr::from(2), Fr::from(5)]);
 
-        let proof = prove(&poly, Fr::from(20));
+        let proof = prove(&poly, Fr::from(10));
         // verify 
     }
 }
