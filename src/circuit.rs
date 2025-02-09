@@ -30,7 +30,7 @@ impl Circuit {
             value: Some(val),
         }).collect();
 
-        Circuit { layers: vec![Layer { gates: input_gates}], }
+        Circuit { layers: vec![Layer { gates: input_gates}],
     }
 }
 
@@ -63,5 +63,11 @@ fn evaluate(&mut self) {
             });
         }
     }
+}
+
+fn output(&self) -> Option<u64> {
+    self.layers.last()?.gates.first()?.value
+}
+
 }
 
