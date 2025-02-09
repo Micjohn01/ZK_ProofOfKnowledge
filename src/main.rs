@@ -10,6 +10,7 @@ mod partial_evaluate;
 mod fiat_shamir_transcript;
 mod multi_poly;
 mod sum_check_proof;
+mod circuit;
 
 use updated_multilinear::*;
 
