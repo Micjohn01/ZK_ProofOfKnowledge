@@ -49,15 +49,37 @@ fn add_layer(&mut self, operations: Vec<(Operation, Vec<GateId>)>) {
     self.layers.push(Layer { gates: new_layer});
 }
 
+// fn evaluate(&mut self) {
+//     for layer_idx in 1..self.layers.len() {
+//         let prev_layer = &self.layers[layer_idx - 1].gates;
+//         let current_layer  = &mut self.layers[layer_idx].gates;
+
+//         for gate in current_layer.iter_mut() {
+//             let inputs: Vec<u64> = gate.inputs.iter().map(|id| prev_layer[id.0].value.unwrap()).collect();
+
+//             gate.value = Some(match gate.operator{
+//                 Operation::Add => inputs.iter().sum(),
+//                 Operation::Mul => inputs.iter().product(),
+//             });
+//         }
+//     }
+// }
+
 fn evaluate(&mut self) {
     for layer_idx in 1..self.layers.len() {
-        let prev_layer = &self.layers[layer_idx - 1].gates;
-        let current_layer = &mut self.layers[layer_idx].gates;
+        // Split layers at current index to isolate previous and current layers
+        let (prev_layers, current_layers) = self.layers.split_at_mut(layer_idx);
+        
+        let prev_layer = &prev_layers[layer_idx - 1].gates;
+        let current_layer = &mut current_layers[0].gates;
 
         for gate in current_layer.iter_mut() {
-            let inputs: Vec<u64> = gate.inputs.iter().map(|id| prev_layer[id.0].value.unwrap()).collect();
+            let inputs: Vec<u64> = gate.inputs
+                .iter()
+                .map(|id| prev_layer[id.0].value.unwrap())
+                .collect();
 
-            gate.value = Some(match gate.operator{
+            gate.value = Some(match gate.operator {
                 Operation::Add => inputs.iter().sum(),
                 Operation::Mul => inputs.iter().product(),
             });
