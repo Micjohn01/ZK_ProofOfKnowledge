@@ -150,6 +150,9 @@ mod tests {
         let gate1 = circuit.gate_operation(1, GateId(1)).unwrap();
         assert!(gate1.is_mul);
         
-       
+        // Test full circuit stats
+        let all_stats = circuit.circuit_operations();
+        assert_eq!(all_stats[0].add_count, 2);
+        assert_eq!(all_stats[1].mul_count, 1);
     }
 }
