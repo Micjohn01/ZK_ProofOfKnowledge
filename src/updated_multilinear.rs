@@ -3,6 +3,7 @@
 use std::result;
 
 use ark_ff::PrimeField;
+use crate::new_circuit::*;
 
 #[derive(Clone)]
 pub(crate) struct MultilinearPolynomial<F: PrimeField> {

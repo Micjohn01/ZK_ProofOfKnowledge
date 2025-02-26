@@ -12,6 +12,7 @@ mod multi_poly;
 mod sum_check_proof;
 mod circuit;
 mod new_circuit;
+mod gkr;
 
 fn main() {
     println!("Hello, world!");
