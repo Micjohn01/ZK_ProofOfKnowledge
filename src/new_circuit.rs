@@ -1,247 +1,166 @@
 use ark_ff::PrimeField;
-use std::collections::HashMap;
+use crate::updated_multilinear::MultilinearPolynomial;
+use std::marker::PhantomData;
 
 #[derive(Debug, Clone, Copy)]
-enum Operation {
+pub enum Operator {
     Add,
     Mul,
 }
 
-#[derive(Debug)]
-struct Gate<F: PrimeField> {
-    op: Operation,
-    left_input: usize,
-    right_input: usize,
-    output: F,
+#[derive(Debug, Clone)]
+pub struct Gate {
+    pub left_index: usize,
+    pub right_index: usize,
+    pub output_index: usize,
+    pub operator: Operator,
+}
+
+impl Gate {
+    pub fn new(left_index: usize, right_index: usize, output_index: usize, operator: Operator) -> Self {
+        Self {
+            left_index,
+            right_index,
+            output_index,
+            operator,
+        }
+    }
+
+    pub fn evaluate<F: PrimeField>(&self, input: &[F]) -> F {
+        let left_value = input[self.left_index];
+        let right_value = input[self.right_index];
+        match self.operator {
+            Operator::Add => left_value + right_value,
+            Operator::Mul => left_value * right_value,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Layer {
+    pub gates: Vec<Gate>,
+}
+
+impl Layer {
+    pub fn new(gates: Vec<Gate>) -> Self {
+        Self { gates }
+    }
+
+    pub fn evaluate<F: PrimeField>(&self, input: &[F]) -> Vec<F> {
+        let max_output_index = self.gates.iter().map(|gate| gate.output_index).max().unwrap_or(0);
+        let mut output = vec![F::zero(); max_output_index + 1];
+
+        for gate in &self.gates {
+            let result = gate.evaluate(input);
+            output[gate.output_index] += result;
+        }
+
+        output
+    }
 }
 
 #[derive(Debug)]
-struct Layer<F: PrimeField> {
-    gates: Vec<Gate<F>>,
-    outputs: Vec<F>,
-    add_count: usize, // Number of addition gates
-    mul_count: usize, // Number of multiplication gates
-}
-
-#[derive(Debug)]
-struct Circuit<F: PrimeField> {
-    layers: Vec<Layer<F>>,
+pub struct Circuit<F: PrimeField> {
+    pub layers: Vec<Layer>,
+    pub layer_evaluations: Vec<Vec<F>>,
+    _phantom: PhantomData<F>,
 }
 
 impl<F: PrimeField> Circuit<F> {
-    // Create a new circuit with input values
-    fn new(inputs: &[F]) -> Self {
-        Circuit {
-            layers: vec![Layer {
-                gates: Vec::new(), // Input layer has no gates
-                outputs: inputs.to_vec(),
-                add_count: 0,
-                mul_count: 0,
-            }],
+    pub fn new(layers: Vec<Layer>) -> Self {
+        Self {
+            layers,
+            layer_evaluations: Vec::new(),
+            _phantom: PhantomData,
         }
     }
 
-    // Add a computation layer with custom operations and input pairs
-    fn add_layer(&mut self, operations: &[Operation], input_pairs: &[(usize, usize)]) {
-        let prev_outputs = &self.layers.last().unwrap().outputs;
-        let mut new_gates = Vec::new();
-        let mut new_outputs = Vec::new();
-        let mut add_count = 0;
-        let mut mul_count = 0;
+    pub fn evaluate(&mut self, input: Vec<F>) -> Vec<F> {
+        let mut current_input = input;
+        let mut evaluations = Vec::new();
 
-        for (i, &op) in operations.iter().enumerate() {
-            let (left_idx, right_idx) = input_pairs[i];
-            let left = prev_outputs[left_idx];
-            let right = prev_outputs[right_idx];
-            let output = match op {
-                Operation::Add => {
-                    add_count += 1;
-                    left + right
-                }
-                Operation::Mul => {
-                    mul_count += 1;
-                    left * right
-                }
-            };
-
-            new_gates.push(Gate {
-                op,
-                left_input: left_idx,
-                right_input: right_idx,
-                output,
-            });
-
-            new_outputs.push(output);
+        for layer in self.layers.iter().rev() {
+            evaluations.push(current_input.clone());
+            current_input = layer.evaluate(&current_input);
         }
 
-        self.layers.push(Layer {
-            gates: new_gates,
-            outputs: new_outputs,
-            add_count,
-            mul_count,
-        });
+        evaluations.reverse();
+        self.layer_evaluations = evaluations;
+
+        self.layer_evaluations[0].clone()
     }
 
-    // Get the multilinear polynomial for a specific layer
-    fn get_multilinear_polynomial(&self, layer_id: usize) -> HashMap<Vec<bool>, F> {
-        let layer = &self.layers[layer_id];
-        let num_gates = layer.outputs.len();
-        let bits = (num_gates as f64).log2() as usize;
+    pub fn w_i_polynomial(&self, layer_index: usize) -> MultilinearPolynomial<F> {
+        assert!(layer_index < self.layer_evaluations.len(), "Layer index out of bounds");
+        let n_vars = self.num_layer_variables(layer_index);
+        MultilinearPolynomial::new(n_vars, self.layer_evaluations[layer_index].clone())
+    }
 
-        let mut poly = HashMap::new();
-        for (idx, &value) in layer.outputs.iter().enumerate() {
-            let binary = index_to_binary(idx, bits);
-            poly.insert(binary, value);
+    pub fn add_i_and_mul_i_mle(&self, layer_index: usize) -> (MultilinearPolynomial<F>, MultilinearPolynomial<F>) {
+        let n_vars = self.num_layer_variables(layer_index);
+        let num_combinations = 1 << n_vars;
+
+        let mut add_i_values = vec![F::zero(); num_combinations];
+        let mut mul_i_values = vec![F::zero(); num_combinations];
+
+        for gate in &self.layers[layer_index].gates {
+            let index = self.gate_to_index(layer_index, gate);
+            match gate.operator {
+                Operator::Add => add_i_values[index] = F::one(),
+                Operator::Mul => mul_i_values[index] = F::one(),
+            }
         }
-        poly
+
+        let add_i_poly = MultilinearPolynomial::new(n_vars, add_i_values);
+        let mul_i_poly = MultilinearPolynomial::new(n_vars, mul_i_values);
+
+        (add_i_poly, mul_i_poly)
     }
 
-    // Compute the wiring predicate F_i(a, b, c)
-    fn wiring_predicate(
-        &self,
-        layer_id: usize,
-        a: &[bool],
-        b: &[bool],
-        c: &[bool],
-    ) -> F {
-        let layer = &self.layers[layer_id];
-        let next_layer_poly = self.get_multilinear_polynomial(layer_id + 1);
-
-        // Find the gate corresponding to index `a`
-        let gate_index = binary_to_index(a);
-        let gate = &layer.gates[gate_index];
-
-        // Get values of W_{i+1}(b) and W_{i+1}(c)
-        let w_b = next_layer_poly.get(b).unwrap_or(&F::zero());
-        let w_c = next_layer_poly.get(c).unwrap_or(&F::zero());
-
-        match gate.op {
-            Operation::Add => *w_b + *w_c,
-            Operation::Mul => *w_b * *w_c,
-        }
-    }
-
-    // Get the number of addition gates in a layer
-    fn add_count(&self, layer_id: usize) -> usize {
-        self.layers[layer_id].add_count
-    }
-
-    // Get the number of multiplication gates in a layer
-    fn mul_count(&self, layer_id: usize) -> usize {
-        self.layers[layer_id].mul_count
-    }
-
-    // Get the final output(s) of the circuit
-    fn final_outputs(&self) -> &[F] {
-        &self.layers.last().unwrap().outputs
-    }
-}
-
-// Helper functions
-fn index_to_binary(index: usize, bits: usize) -> Vec<bool> {
-    (0..bits).rev().map(|i| (index >> i) & 1 == 1).collect()
-}
-
-fn binary_to_index(binary: &[bool]) -> usize {
-    binary.iter().enumerate().fold(0, |acc, (i, &bit)| {
-        if bit {
-            acc | (1 << (binary.len() - i - 1))
+    fn num_layer_variables(&self, layer_index: usize) -> usize {
+        if layer_index == 0 {
+            3
         } else {
-            acc
+            3 * layer_index + 2
         }
-    })
-}
+    }
 
+    fn gate_to_index(&self, layer_index: usize, gate: &Gate) -> usize {
+        let a = format!("{:0>width$b}", gate.output_index, width = layer_index);
+        let b = format!("{:0>width$b}", gate.left_index, width = layer_index + 1);
+        let c = format!("{:0>width$b}", gate.right_index, width = layer_index + 1);
+        let combined = a + &b + &c;
+        usize::from_str_radix(&combined, 2).unwrap_or(0)
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ark_ff::Field;
-    use ark_ff::One;
-    use ark_ff::Zero;
-    use ark_test_curves::bls12_381::Fr as F;
+    use ark_bn254::Fq;
 
     #[test]
-    fn test_flexible_outputs_with_final_addition() {
-        let inputs = [F::from(1), F::from(2), F::from(3), F::from(4), F::from(5), F::from(6), F::from(7)];
-        let mut circuit = Circuit::new(&inputs);
-        
-        // Layer 1: Custom operations and input pairs
-        circuit.add_layer(
-            &[Operation::Add, Operation::Mul, Operation::Add, Operation::Mul, Operation::Add],
-            &[(0, 1), (2, 3), (4, 5), (1, 6), (0, 2)],
-        );
-        
-        let layer1 = &circuit.layers[1];
-        assert_eq!(layer1.outputs, vec![F::from(3), F::from(12), F::from(11), F::from(14), F::from(4)]); // [1+2, 3*4, 5+6, 2*7, 1+3]
-        assert_eq!(layer1.add_count, 3); // 3 addition gates
-        assert_eq!(layer1.mul_count, 2); // 2 multiplication gates
+    fn test_circuit_evaluation() {
+        let input = vec![Fq::from(2), Fq::from(3), Fq::from(4), Fq::from(5)];
 
-        // Layer 2: More operations
-        circuit.add_layer(
-            &[Operation::Mul, Operation::Add, Operation::Mul],
-            &[(0, 1), (2, 3), (1, 4)],
-        );
-        
-        let layer2 = &circuit.layers[2];
-        assert_eq!(layer2.outputs, vec![F::from(36), F::from(25), F::from(48)]); // [3*12, 11+14, 12*4]
-        assert_eq!(layer2.add_count, 1); // 1 addition gate
-        assert_eq!(layer2.mul_count, 2); // 2 multiplication gates
+        let gate1 = Gate::new(0, 1, 0, Operator::Mul);
+        let gate2 = Gate::new(0, 1, 0, Operator::Add);
+        let gate3 = Gate::new(2, 3, 1, Operator::Mul);
 
-        // Layer 3: Final operations
-        circuit.add_layer(
-            &[Operation::Add, Operation::Mul],
-            &[(0, 1), (1, 2)],
-        );
-        
-        let layer3 = &circuit.layers[3];
-        assert_eq!(layer3.outputs, vec![F::from(61), F::from(1200)]); // [36+25, 25*48]
-        assert_eq!(layer3.add_count, 1); // 1 addition gate
-        assert_eq!(layer3.mul_count, 1); // 1 multiplication gate
+        let layer0 = Layer::new(vec![gate1]);
+        let layer1 = Layer::new(vec![gate2, gate3]);
 
-        // Layer 4: Sum the outputs of Layer 3
-        circuit.add_layer(
-            &[Operation::Add],
-            &[(0, 1)],
-        );
-        
-        let layer4 = &circuit.layers[4];
-        assert_eq!(layer4.outputs, vec![F::from(1261)]); // [61 + 1200]
-        assert_eq!(layer4.add_count, 1); // 1 addition gate
-        assert_eq!(layer4.mul_count, 0); // 0 multiplication gates
+        let mut circuit = Circuit::<Fq>::new(vec![layer0, layer1]);
+        let result = circuit.evaluate(input);
 
-        // Final outputs
-        assert_eq!(circuit.final_outputs(), &[F::from(1261)]);
+        let expected_layers_evaluation = vec![
+            vec![Fq::from(100)],
+            vec![Fq::from(5), Fq::from(20)],
+            vec![Fq::from(2), Fq::from(3), Fq::from(4), Fq::from(5)],
+        ];
+
+        assert_eq!(result[0], Fq::from(100));
+        assert_eq!(circuit.layer_evaluations, expected_layers_evaluation);
     }
 
-    #[test]
-    fn test_multilinear_polynomial() {
-        let inputs = [F::from(1), F::from(2), F::from(3), F::from(4)];
-        let mut circuit = Circuit::new(&inputs);
-        circuit.add_layer(
-            &[Operation::Add, Operation::Mul],
-            &[(0, 1), (2, 3)],
-        );
-
-        // Get multilinear polynomial for Layer 1
-        let poly = circuit.get_multilinear_polynomial(1);
-        assert_eq!(poly[&vec![false]], F::from(3)); // 1 + 2
-        assert_eq!(poly[&vec![true]], F::from(12)); // 3 * 4
-    }
-
-    #[test]
-    fn test_wiring_predicate() {
-        let inputs = [F::from(1), F::from(2), F::from(3), F::from(4)];
-        let mut circuit = Circuit::new(&inputs);
-        circuit.add_layer(
-            &[Operation::Add, Operation::Mul],
-            &[(0, 1), (2, 3)],
-        );
-
-        // Test wiring predicate for Layer 0
-        let a = vec![false]; // Gate 0 in Layer 0
-        let b = vec![false]; // Gate 0 in Layer 1
-        let c = vec![true];  // Gate 1 in Layer 1
-        let result = circuit.wiring_predicate(0, &a, &b, &c);
-        assert_eq!(result, F::from(15)); // 3 (W_1(b)) + 12 (W_1(c)) = 15
-    }
+    
 }

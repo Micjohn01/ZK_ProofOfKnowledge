@@ -40,7 +40,7 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
     }
 
     pub fn partial_evaluate(&self, index: usize, value:&F) -> Self{
-        // USe index to generate  pairing
+        // Use index to generate  pairing
         // linear interpolate and evaluate
 
         // 00 - (000, 001) - (0, 4)
