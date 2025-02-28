@@ -42,21 +42,6 @@ fn multiply_polynimials (a: &[f64], b: &[f64]) -> Vec<f64> {
 }
 
 
-
-
-
-// fn main () {
-
-//     let polynomial = UnivariatePolynomial::new(vec![(0, 1.0), (1, 2.0), (2, 3.0)]);
-//     println!("Power = {}", polynomial.evaluate(2.0));
-
-//     let points = vec![(1.0, 1.0), (2.0, 4.0), (3.0, 9.0)];
-
-//     let interpolated_polynomial = UnivariatePolynomial::lagrange_interpolation(&points);
-//     println!("Interpolated polynomial evaluated @ x = 2: {}", interpolated_polynomial.evaluate(2.0));
-
-// }
-
 #[cfg(test)]
 mod tests {
     use super::*;
