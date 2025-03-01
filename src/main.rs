@@ -13,6 +13,8 @@ mod sum_check_proof;
 mod circuit;
 mod new_circuit;
 mod gkr;
+mod sum_poly;
+mod product_poly;
 
 fn main() {
     println!("Hello, world!");
