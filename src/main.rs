@@ -12,9 +12,10 @@ mod multi_poly;
 mod sum_check_proof;
 mod circuit;
 mod new_circuit;
-mod gkr;
-mod sum_poly;
+mod gkr_protocol;
+mod gkr_sumcheck;
 mod product_poly;
+mod sum_all_polys;
 
 fn main() {
     println!("Hello, world!");

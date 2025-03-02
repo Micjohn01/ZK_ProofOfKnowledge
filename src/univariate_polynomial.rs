@@ -1,12 +1,12 @@
 use ark_ff::PrimeField;
 
 #[derive(Clone, Debug)]
-struct SparseUnivariatePolynomial<F: PrimeField> {
-    terms: Vec<(usize, F)>,
+pub struct SparseUnivariatePolynomial<F: PrimeField> {
+    pub terms: Vec<(usize, F)>,
 }
 
 impl<F: PrimeField> SparseUnivariatePolynomial<F> {
-    fn new(terms: Vec<(usize, F)>) -> Self {
+    pub fn new(terms: Vec<(usize, F)>) -> Self {
         let mut sorted_terms = terms;
         sorted_terms.sort_by(|a, b| a.0.cmp(&b.0));
         let mut combined: Vec<(usize, F)> = Vec::new();
@@ -20,18 +20,18 @@ impl<F: PrimeField> SparseUnivariatePolynomial<F> {
         SparseUnivariatePolynomial { terms: combined }
     }
 
-    fn degree(&self) -> Option<usize> {
+    pub fn degree(&self) -> Option<usize> {
         self.terms.last().map(|(power, _)| *power)
     }
 
-    fn evaluate(&self, x: F) -> F {
+    pub fn evaluate(&self, x: F) -> F {
         self.terms.iter()
             .fold(F::zero(), |acc, (power, coeff)| {
                 acc + *coeff * x.pow([*power as u64])
             })
     }
 
-    fn lagrange_interpolation(points: &[(F, F)]) -> Self {
+    pub fn lagrange_interpolation(points: &[(F, F)]) -> Self {
         let mut result = Self::new(vec![(0, F::zero())]);
         
         for (i, &(xi, yi)) in points.iter().enumerate() {
@@ -51,7 +51,7 @@ impl<F: PrimeField> SparseUnivariatePolynomial<F> {
         result
     }
 
-    fn multiply(a: &[(usize, F)], b: &[(usize, F)]) -> Vec<(usize, F)> {
+    pub fn multiply(a: &[(usize, F)], b: &[(usize, F)]) -> Vec<(usize, F)> {
         let mut result = Vec::new();
         for (pow_a, coeff_a) in a {
             for (pow_b, coeff_b) in b {
@@ -65,14 +65,14 @@ impl<F: PrimeField> SparseUnivariatePolynomial<F> {
         Self::new(result).terms
     }
 
-    fn scalar_mult(scalar: F, terms: &[(usize, F)]) -> Vec<(usize, F)> {
+    pub fn scalar_mult(scalar: F, terms: &[(usize, F)]) -> Vec<(usize, F)> {
         terms.iter()
             .map(|(pow, coeff)| (*pow, scalar * coeff))
             .filter(|(_, coeff)| !coeff.is_zero())
             .collect()
     }
 
-    fn add(a: &Self, b: &Self) -> Self {
+    pub fn add(a: &Self, b: &Self) -> Self {
         let mut combined = a.terms.clone();
         combined.extend(b.terms.iter().cloned());
         Self::new(combined)
