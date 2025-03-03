@@ -1,5 +1,5 @@
 use ark_ff::PrimeField;
-use crate::updated_multilinear::MultilinearPolynomial;
+use crate::multi_poly::MultiPoly;
 use std::marker::PhantomData;
 
 #[derive(Debug, Clone, Copy)]
@@ -90,13 +90,13 @@ impl<F: PrimeField> Circuit<F> {
         self.layer_evaluations[0].clone()
     }
 
-    pub fn w_i_polynomial(&self, layer_index: usize) -> MultilinearPolynomial<F> {
+    pub fn w_i_polynomial(&self, layer_index: usize) -> MultiPoly<F> {
         assert!(layer_index < self.layer_evaluations.len(), "Layer index out of bounds");
         let n_vars = self.num_layer_variables(layer_index);
-        MultilinearPolynomial::new(n_vars, self.layer_evaluations[layer_index].clone())
+        MultiPoly::new(n_vars, self.layer_evaluations[layer_index].clone())
     }
 
-    pub fn add_i_and_mul_i_mle(&self, layer_index: usize) -> (MultilinearPolynomial<F>, MultilinearPolynomial<F>) {
+    pub fn add_i_and_mul_i_mle(&self, layer_index: usize) -> (MultiPoly<F>, MultiPoly<F>) {
         let n_vars = self.num_layer_variables(layer_index);
         let num_combinations = 1 << n_vars;
 
@@ -111,8 +111,8 @@ impl<F: PrimeField> Circuit<F> {
             }
         }
 
-        let add_i_poly = MultilinearPolynomial::new(n_vars, add_i_values);
-        let mul_i_poly = MultilinearPolynomial::new(n_vars, mul_i_values);
+        let add_i_poly = MultiPoly::new(n_vars, add_i_values);
+        let mul_i_poly = MultiPoly::new(n_vars, mul_i_values);
 
         (add_i_poly, mul_i_poly)
     }

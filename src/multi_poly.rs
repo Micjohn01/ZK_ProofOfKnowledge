@@ -1,4 +1,5 @@
 use ark_ff::{BigInteger, PrimeField};
+use crate::new_circuit;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct MultiPoly<F: PrimeField> {

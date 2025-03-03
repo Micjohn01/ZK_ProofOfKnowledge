@@ -16,6 +16,7 @@ mod gkr_protocol;
 mod gkr_sumcheck;
 mod product_poly;
 mod sum_all_polys;
+mod kzg_multilinear;
 
 fn main() {
     println!("Hello, world!");
