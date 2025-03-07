@@ -68,5 +68,14 @@ mod tests {
         ProductPolynomial::new(vec![poly1, poly2]);
     }
 
+    #[test]
+    fn test_evaluate_product_poly() {
+        let poly1 = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let poly2 = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly = ProductPolynomial::new(vec![poly1, poly2]);
+        let values = to_field(vec![1, 2]);
+        assert_eq!(product_poly.evaluate(&values), Fr::from(24));
+    }
+
     
 }
