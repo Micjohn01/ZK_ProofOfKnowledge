@@ -140,5 +140,11 @@ pub(crate) mod tests {
         assert_eq!(pairs[0], (0, 4));
     }
 
-  
+    #[test]
+    fn test_partial_evaluate() {
+        // 2ab + 3bc
+        let polynomial = MultilinearPolynomial::new(3, to_field(vec![0_u64,0,0,3,0,0,2,5]));
+        assert_eq!(polynomial.partial_evaluate(2, &Fr::from(3)).evals, to_field(vec![0, 9, 0, 11]));
+        assert_eq!(polynomial.partial_evaluate(1, &Fr::from(3)).evals, to_field(vec![0, 9, 6, 15]));
+    }
 }
