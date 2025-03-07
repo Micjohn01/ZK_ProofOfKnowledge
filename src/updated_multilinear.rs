@@ -114,3 +114,22 @@ impl<F: PrimeField> MultilinearPolynomial<F> {
 
 
 
+#[cfg(test)]
+
+pub(crate) mod tests {
+    use super::*;
+    use ark_bn254::Fr;
+
+    pub(crate) fn to_field(input: Vec<u64>) -> Vec<Fr> {
+        input.into_iter().map(|v| Fr::from(v)).collect()
+    }
+
+    #[test]
+    fn bit_insertion() {
+        assert_eq!(insert_bit(3, 0), 0b110);
+        assert_eq!(insert_bit(3, 1), 0b101);
+        assert_eq!(insert_bit(3, 2), 0b011);
+    }
+
+
+}
