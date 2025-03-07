@@ -131,5 +131,14 @@ pub(crate) mod tests {
         assert_eq!(insert_bit(3, 2), 0b011);
     }
 
+    #[test]
+    // 0-4
+    // 1-5
+    fn test_pairs(){
+        let pairs = pairs(0, 3);
+        dbg!(&pairs);
+        assert_eq!(pairs[0], (0, 4));
+    }
 
+  
 }
