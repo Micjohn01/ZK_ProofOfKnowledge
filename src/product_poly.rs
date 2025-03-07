@@ -51,3 +51,22 @@ impl<F: PrimeField> ProductPolynomial<F> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::Fr;
+
+    fn to_field(values: Vec<u64>) -> Vec<Fr> {
+        values.into_iter().map(Fr::from).collect()
+    }
+
+    #[test]
+    #[should_panic(expected = "All polynomials must have the same number of variables")]
+    fn test_new_with_different_polynomial_lengths() {
+        let poly1 = MultiPoly::new(1, to_field(vec![0, 2]));
+        let poly2 = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        ProductPolynomial::new(vec![poly1, poly2]);
+    }
+
+    
+}
