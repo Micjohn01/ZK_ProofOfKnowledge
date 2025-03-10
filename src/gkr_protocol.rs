@@ -42,7 +42,7 @@ pub fn prove_gkr<F: PrimeField>(
     if w0_polynomial.evaluated_values.len() == 1 {
         let mut w0_padded_with_zero = w0_polynomial.evaluated_values.clone();
         w0_padded_with_zero.push(F::zero());
-        w0_polynomial = MultiPoly::new(1, w0_padded_with_zero); // Fix: Added num_vars = 1
+        w0_polynomial = MultiPoly::new(1, w0_padded_with_zero);
     }
 
     transcript.absorb(&w0_polynomial.convert_to_bytes());
@@ -55,8 +55,8 @@ pub fn prove_gkr<F: PrimeField>(
 
         let (add_i_bc, mul_i_bc) = if layer_index == 0 {
             (
-                MultiPoly::partial_evaluate(&add_i_abc_polynomial.evaluated_values, 0, random_challenge_a), // Fix: Removed &
-                MultiPoly::partial_evaluate(&mul_i_abc_polynomial.evaluated_values, 0, random_challenge_a)  // Fix: Removed &
+                MultiPoly::partial_evaluate(&add_i_abc_polynomial.evaluated_values, 0, random_challenge_a), 
+                MultiPoly::partial_evaluate(&mul_i_abc_polynomial.evaluated_values, 0, random_challenge_a)  
             )
         } else {
             compute_new_add_i_mul_i(
@@ -86,7 +86,7 @@ pub fn prove_gkr<F: PrimeField>(
             wb_evals.push(wb_evaluation);
             wc_evals.push(wc_evaluation);
 
-            // Use the randomness from the sumcheck proof, split into two vec! for rb and rc
+            // Using the randomness from the sumcheck proof, split into two vec! for rb and rc
             let middle = sumcheck_challenges.len() / 2;
             let (current_rb_values, current_rc_values) = sumcheck_challenges.split_at(middle);
             rb_values = current_rb_values.to_vec();
@@ -127,7 +127,7 @@ pub fn verify_gkr<F: PrimeField>(
     if w0_polynomial.evaluated_values.len() == 1 {
         let mut w0_padded_with_zero = w0_polynomial.evaluated_values.clone();
         w0_padded_with_zero.push(F::zero());
-        w0_polynomial = MultiPoly::new(1, w0_padded_with_zero); // Fix: Added num_vars = 1
+        w0_polynomial = MultiPoly::new(1, w0_padded_with_zero); 
     }
 
     transcript.absorb(&w0_polynomial.convert_to_bytes());
@@ -151,7 +151,7 @@ pub fn verify_gkr<F: PrimeField>(
         let (wb_evaluation, wc_evaluation) = if layer_index < circuit.layers.len() - 1 {
             (proof.wb_evals[layer_index], proof.wc_evals[layer_index])
         } else {
-            let wb_poly = MultiPoly::new(1, inputs.to_vec()); // Fix: Added num_vars = 1
+            let wb_poly = MultiPoly::new(1, inputs.to_vec());
             let wc_poly = wb_poly.clone();
 
             evaluate_wb_wc(&wb_poly, &wc_poly, &sumcheck_challenges)
@@ -227,13 +227,13 @@ fn compute_new_add_i_mul_i<F: PrimeField>(
     let mut mul_rc_bc = MultiPoly::partial_evaluate(&mul_i_abc.evaluated_values, 0, rc_values[0]); // Fix: Removed &
 
     for rb in rb_values.iter().skip(1) {
-        add_rb_bc = MultiPoly::partial_evaluate(&add_rb_bc.evaluated_values, 0, *rb); // Fix: Removed &
-        mul_rb_bc = MultiPoly::partial_evaluate(&mul_rb_bc.evaluated_values, 0, *rb); // Fix: Removed &
+        add_rb_bc = MultiPoly::partial_evaluate(&add_rb_bc.evaluated_values, 0, *rb);
+        mul_rb_bc = MultiPoly::partial_evaluate(&mul_rb_bc.evaluated_values, 0, *rb);
     }
 
     for rc in rc_values.iter().skip(1) {
-        add_rc_bc = MultiPoly::partial_evaluate(&add_rc_bc.evaluated_values, 0, *rc); // Fix: Removed &
-        mul_rc_bc = MultiPoly::partial_evaluate(&mul_rc_bc.evaluated_values, 0, *rc); // Fix: Removed &
+        add_rc_bc = MultiPoly::partial_evaluate(&add_rc_bc.evaluated_values, 0, *rc);
+        mul_rc_bc = MultiPoly::partial_evaluate(&mul_rc_bc.evaluated_values, 0, *rc);
     }
 
     let new_add_i = MultiPoly::add_polynomials(&add_rb_bc.scalar_mul(alpha), &add_rc_bc.scalar_mul(beta));
@@ -267,8 +267,8 @@ fn compute_verifier_initial_claim<F: PrimeField>(
     let (add_i_abc, mul_i_abc) = circuit.add_i_and_mul_i_mle(layer_index);
 
     let (add_i_bc, mul_i_bc) = (
-        MultiPoly::partial_evaluate(&add_i_abc.evaluated_values, 0, initial_random_challenge), // Fix: Removed &
-        MultiPoly::partial_evaluate(&mul_i_abc.evaluated_values, 0, initial_random_challenge)  // Fix: Removed &
+        MultiPoly::partial_evaluate(&add_i_abc.evaluated_values, 0, initial_random_challenge), 
+        MultiPoly::partial_evaluate(&mul_i_abc.evaluated_values, 0, initial_random_challenge)  
     );
 
     let add_i_r = add_i_bc.evaluate(sumcheck_challenges);

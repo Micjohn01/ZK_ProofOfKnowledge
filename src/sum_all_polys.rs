@@ -3,7 +3,6 @@ use crate::product_poly::ProductPolynomial;
 use crate::multi_poly::MultiPoly;
 
 
-// Core SumPolynomial struct (data only)
 #[derive(Debug, PartialEq, Clone)]
 pub struct SumPolynomial<F: PrimeField> {
     product_polynomials: Vec<ProductPolynomial<F>>,

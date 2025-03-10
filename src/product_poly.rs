@@ -88,5 +88,15 @@ mod tests {
         assert_eq!(result.polynomials, vec![expect_poly1, expect_poly2]);
     }
 
+    #[test]
+    fn test_multiply_polys_element_wise() {
+        let poly1 = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let poly2 = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly = ProductPolynomial::new(vec![poly1, poly2]);
+        let result = product_poly.multiply_polys_element_wise();
+        let expected = MultiPoly::new(2, to_field(vec![0, 0, 0, 6]));
+        assert_eq!(result, expected);
+    }
+
     
 }
