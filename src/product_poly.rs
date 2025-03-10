@@ -77,5 +77,16 @@ mod tests {
         assert_eq!(product_poly.evaluate(&values), Fr::from(24));
     }
 
+    #[test]
+    fn test_partial_evaluate_product_poly() {
+        let poly1 = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let poly2 = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly = ProductPolynomial::new(vec![poly1, poly2]);
+        let result = product_poly.partial_evaluate(0, Fr::from(2));
+        let expect_poly1 = MultiPoly::new(1, to_field(vec![0, 4]));
+        let expect_poly2 = MultiPoly::new(1, to_field(vec![0, 6]));
+        assert_eq!(result.polynomials, vec![expect_poly1, expect_poly2]);
+    }
+
     
 }
