@@ -98,5 +98,14 @@ mod tests {
         assert_eq!(result, expected);
     }
 
-    
+    #[test]
+    fn test_convert_to_bytes() {
+        let poly1 = MultiPoly::new(2, to_field(vec![1, 2, 3, 4]));
+        let poly2 = MultiPoly::new(2, to_field(vec![5, 6, 7, 8]));
+        let product_poly = ProductPolynomial::new(vec![poly1, poly2]);
+        let bytes = product_poly.convert_to_bytes();
+        assert_eq!(bytes.len(), 256); // 8 values * 32 bytes each
+    }
+
+   
 }
