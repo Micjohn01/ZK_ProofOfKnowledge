@@ -107,5 +107,11 @@ mod tests {
         assert_eq!(bytes.len(), 256); // 8 values * 32 bytes each
     }
 
-   
+    #[test]
+    fn test_product_poly_degree() {
+        let poly1 = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let poly2 = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly = ProductPolynomial::new(vec![poly1, poly2]);
+        assert_eq!(product_poly.degree(), 2);
+    }
 }
