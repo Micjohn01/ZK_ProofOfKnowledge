@@ -116,5 +116,25 @@ mod tests {
         assert_eq!(sum_poly.evaluate(&values), Fr::from(32));
     }
 
+    #[test]
+    fn test_partial_evaluate_sum_poly() {
+        let polynomial1a = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let polynomial1b = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly1 = ProductPolynomial::new(vec![polynomial1a, polynomial1b]);
+        let poly2a = MultiPoly::new(2, to_field(vec![0, 0, 0, 1]));
+        let poly2b = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let product_poly2 = ProductPolynomial::new(vec![poly2a, poly2b]);
+        let sum_poly = SumPolynomial::new(vec![product_poly1, product_poly2]);
+        let result = sum_poly.partial_evaluate(0, Fr::from(2));
+        let expect_poly1a = MultiPoly::new(1, to_field(vec![0, 4]));
+        let expect_poly1b = MultiPoly::new(1, to_field(vec![0, 6]));
+        let expect_product1 = ProductPolynomial::new(vec![expect_poly1a, expect_poly1b]);
+        let expect_poly2a = MultiPoly::new(1, to_field(vec![0, 2]));
+        let expect_poly2b = MultiPoly::new(1, to_field(vec![0, 4]));
+        let expect_product2 = ProductPolynomial::new(vec![expect_poly2a, expect_poly2b]);
+        let expected_sum = SumPolynomial::new(vec![expect_product1, expect_product2]);
+        assert_eq!(result.product_polynomials, expected_sum.product_polynomials);
+    }
+
     
 }
