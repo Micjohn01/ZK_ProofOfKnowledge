@@ -103,5 +103,18 @@ mod tests {
         SumPolynomial::new(vec![product_poly1, product_poly2]);
     }
 
+    #[test]
+    fn test_evaluate_sum_poly() {
+        let polynomial1a = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let polynomial1b = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly1 = ProductPolynomial::new(vec![polynomial1a, polynomial1b]);
+        let poly2a = MultiPoly::new(2, to_field(vec![0, 0, 0, 1]));
+        let poly2b = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let product_poly2 = ProductPolynomial::new(vec![poly2a, poly2b]);
+        let sum_poly = SumPolynomial::new(vec![product_poly1, product_poly2]);
+        let values = to_field(vec![1, 2]);
+        assert_eq!(sum_poly.evaluate(&values), Fr::from(32));
+    }
+
     
 }
