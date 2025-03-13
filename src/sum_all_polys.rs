@@ -136,5 +136,19 @@ mod tests {
         assert_eq!(result.product_polynomials, expected_sum.product_polynomials);
     }
 
+    #[test]
+    fn test_add_polynomials_element_wise() {
+        let polynomial1a = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let polynomial1b = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly1 = ProductPolynomial::new(vec![polynomial1a, polynomial1b]);
+        let poly2a = MultiPoly::new(2, to_field(vec![0, 0, 0, 1]));
+        let poly2b = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let product_poly2 = ProductPolynomial::new(vec![poly2a, poly2b]);
+        let sum_poly = SumPolynomial::new(vec![product_poly1, product_poly2]);
+        let result = sum_poly.element_wise_polynomials_addition();
+        let expected = MultiPoly::new(2, to_field(vec![0, 0, 0, 8]));
+        assert_eq!(result, expected);
+    }
+
     
 }
