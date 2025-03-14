@@ -174,5 +174,16 @@ mod tests {
         assert_eq!(sum_poly.number_of_variables(), 2);
     }
 
-    
+    #[test]
+    fn test_convert_to_bytes() {
+        let polynomial1a = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let polynomial1b = MultiPoly::new(2, to_field(vec![0, 0, 0, 3]));
+        let product_poly1 = ProductPolynomial::new(vec![polynomial1a, polynomial1b]);
+        let poly2a = MultiPoly::new(2, to_field(vec![0, 0, 0, 1]));
+        let poly2b = MultiPoly::new(2, to_field(vec![0, 0, 0, 2]));
+        let product_poly2 = ProductPolynomial::new(vec![poly2a, poly2b]);
+        let sum_poly = SumPolynomial::new(vec![product_poly1, product_poly2]);
+        let bytes = sum_poly.convert_to_bytes();
+        assert_eq!(bytes.len(), 256);
+    } 
 }
