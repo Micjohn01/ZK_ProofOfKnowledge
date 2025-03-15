@@ -150,7 +150,19 @@ mod tests {
         SumPolynomial::new(vec![prod_poly1, prod_poly2, prod_poly3])
     }
 
-   
+    // Helper function to compute the expected sum over all boolean inputs
+    fn compute_expected_sum<F: PrimeField>(poly: &SumPolynomial<F>) -> F {
+        let mut sum = F::zero();
+        for x in 0..2 {
+            for y in 0..2 {
+                let inputs = vec![F::from(x), F::from(y)];
+                sum += poly.evaluate(&inputs);
+            }
+        }
+        sum
+    }
+
+    
 }
 
 
