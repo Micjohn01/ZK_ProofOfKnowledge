@@ -162,6 +162,32 @@ mod tests {
         sum
     }
 
+    #[test]
+    fn test_prove_and_verify_correct_sum() {
+        let mut transcript = FiatShamirTranscript::new();
+        let sum_poly = create_test_sum_polynomial::<Fr>();
+        let claimed_sum = compute_expected_sum(&sum_poly); // Should be 6
+
+        // Generate proof
+        let proof = prove(sum_poly.clone(), claimed_sum, &mut transcript);
+
+        // Reset transcript for verification
+        let mut transcript = FiatShamirTranscript::new();
+        let verifier_result = verify(&proof, &mut transcript);
+
+        assert!(verifier_result.is_proof_valid, "Verification should pass with correct sum");
+        assert_eq!(proof.claimed_sum, claimed_sum, "Claimed sum should match expected sum");
+        assert_eq!(
+            proof.random_challenges.len(),
+            sum_poly.number_of_variables(),
+            "Number of challenges should match number of variables"
+        );
+        assert_eq!(
+            proof.random_challenges, verifier_result.random_challenges,
+            "Random challenges should match between prover and verifier"
+        );
+    }
+
     
 }
 
