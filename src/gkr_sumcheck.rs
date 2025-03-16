@@ -188,6 +188,22 @@ mod tests {
         );
     }
 
+    #[test]
+    fn test_verify_fails_with_incorrect_sum() {
+        let mut transcript = FiatShamirTranscript::new();
+        let sum_poly = create_test_sum_polynomial::<Fr>();
+        let incorrect_sum = compute_expected_sum(&sum_poly) + Fr::one(); // Incorrect sum
+
+        // Generate proof with incorrect sum
+        let proof = prove(sum_poly.clone(), incorrect_sum, &mut transcript);
+
+        // Reset transcript for verification
+        let mut transcript = FiatShamirTranscript::new();
+        let verifier_result = verify(&proof, &mut transcript);
+
+        assert!(!verifier_result.is_proof_valid, "Verification should fail with incorrect sum");
+    }
+
     
 }
 
