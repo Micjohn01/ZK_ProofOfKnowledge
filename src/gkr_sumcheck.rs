@@ -228,6 +228,23 @@ mod tests {
         assert_eq!(bytes, expected_bytes, "Field element serialization should match");
     }
 
+    #[test]
+    fn test_generate_round_univariate() {
+        let sum_poly = create_test_sum_polynomial::<Fr>();
+        let univariate_poly = generate_round_univariate(&sum_poly);
+
+        // Expected evaluations: f(x, y) = x^2 + 2xy + y summed over y
+        // At x = 0: 0 + 2*0*0 + 0 = 0, 0 + 2*0*1 + 1 = 1 => g(0) = 0 + 1 = 1
+        // At x = 1: 1 + 2*1*0 + 0 = 1, 1 + 2*1*1 + 1 = 4 => g(1) = 1 + 4 = 5
+        assert_eq!(univariate_poly.evaluate(Fr::zero()), Fr::from(1u64), "Evaluation at 0 should be 1");
+        assert_eq!(univariate_poly.evaluate(Fr::one()), Fr::from(5u64), "Evaluation at 1 should be 5");
+        assert_eq!(
+            univariate_poly.degree().unwrap_or(0),
+            sum_poly.degree(),
+            "Degree of univariate should match original polynomial degree"
+        );
+    }
+
     
 }
 
