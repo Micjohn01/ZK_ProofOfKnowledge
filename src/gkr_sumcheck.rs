@@ -204,6 +204,20 @@ mod tests {
         assert!(!verifier_result.is_proof_valid, "Verification should fail with incorrect sum");
     }
 
+    #[test]
+    fn test_univariate_to_bytes_serialization() {
+        let terms = vec![(0, Fr::from(3u64)), (2, Fr::from(2u64))]; // 3 + 2x^2
+        let univariate_poly = SparseUnivariatePolynomial::new(terms);
+
+        let bytes = univariate_to_bytes(&univariate_poly);
+        assert!(!bytes.is_empty(), "Serialized bytes should not be empty");
+
+        // Check size: each term has 4 bytes for power (usize) + bigint bytes for coefficient
+        let coeff_size = Fr::zero().into_bigint().to_bytes_be().len();
+        let expected_size = 2 * (4 + coeff_size);
+        assert_eq!(bytes.len(), expected_size, "Serialized size should match expected");
+    }
+
     
 }
 
