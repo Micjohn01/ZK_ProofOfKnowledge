@@ -218,6 +218,16 @@ mod tests {
         assert_eq!(bytes.len(), expected_size, "Serialized size should match expected");
     }
 
+    #[test]
+    fn test_field_element_to_bytes() {
+        let field_element = Fr::from(42u64);
+        let bytes = field_element_to_bytes(field_element);
+        assert!(!bytes.is_empty(), "Field element bytes should not be empty");
+
+        let expected_bytes = field_element.into_bigint().to_bytes_be();
+        assert_eq!(bytes, expected_bytes, "Field element serialization should match");
+    }
+
     
 }
 
