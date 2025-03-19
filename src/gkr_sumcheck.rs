@@ -245,7 +245,19 @@ mod tests {
         );
     }
 
-    
+    #[test]
+    fn test_empty_sum_polynomial() {
+        let sum_poly = SumPolynomial::new(vec![]); // Empty polynomial
+        let mut transcript = FiatShamirTranscript::new();
+        let claimed_sum = Fr::zero();
+
+        let proof = prove(sum_poly.clone(), claimed_sum, &mut transcript);
+        let mut transcript = FiatShamirTranscript::new();
+        let verifier_result = verify(&proof, &mut transcript);
+
+        assert!(verifier_result.is_proof_valid, "Empty polynomial should verify with zero sum");
+        assert_eq!(proof.round_univariate_polynomials.len(), 0, "No rounds for empty polynomial");
+    }
 }
 
 
