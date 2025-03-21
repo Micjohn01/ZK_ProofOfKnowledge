@@ -306,3 +306,34 @@ fn compute_verifier_folded_claim<F: PrimeField>(
     (add_r * (wb_evaluation + wc_evaluation)) + (mul_r * (wb_evaluation * wc_evaluation))
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::Fq;
+
+    #[test]
+    fn test_gkr_protocol() {
+        // Define a simple circuit
+        let gate1 = Gate::new(0, 1, 0, Operator::Add);
+        let gate2 = Gate::new(2, 3, 1, Operator::Mul);
+        let layer0 = Layer::new(vec![gate1]);
+        let layer1 = Layer::new(vec![gate2]);
+        let mut circuit = Circuit::new(vec![layer0, layer1]);
+
+        // Define inputs
+        let inputs = vec![Fq::from(2), Fq::from(3), Fq::from(4), Fq::from(5)];
+
+        // Initialize the transcript
+        let mut prover_transcript = FiatShamirTranscript::new();
+        let mut verifier_transcript = FiatShamirTranscript::new();
+
+        // Run the prover
+        let proof = prove_gkr(&mut circuit, &inputs, &mut prover_transcript);
+
+        // Run the verifier
+        let result = verify_gkr(&mut circuit, proof, &inputs, &mut verifier_transcript);
+
+        // Assert that the proof is valid
+        assert!(result, "The GKR proof is invalid!");
+    }
+}
