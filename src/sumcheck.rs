@@ -86,8 +86,11 @@ fn verify<F: PrimeField>(poly: &MultilinearPolynomial<F>, proof: &Proof<F>) -> b
 
 mod test {
     use crate::updated_multilinear::MultilinearPolynomial;
-    use ark_bn254::Fr;
+    // use ark_bn254::Fr;
     use crate::sumcheck::{prove, verify};
+    use field_tracker::{print_summary, Ft};
+
+    type Fr = Ft!(ark_bn254::Fr);
 
     #[test]
     fn test_sumcheck() {
@@ -95,6 +98,8 @@ mod test {
         MultilinearPolynomial::new(3, vec![Fr::from(0), Fr::from(0), Fr::from(0), Fr::from(3), Fr::from(0), Fr::from(0), Fr::from(2), Fr::from(5)]);
 
         let proof = prove(&poly, Fr::from(10));
+
+        print_summary!();
         // verify 
     }
 }
