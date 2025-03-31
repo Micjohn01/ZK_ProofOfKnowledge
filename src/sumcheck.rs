@@ -1,4 +1,6 @@
 use ark_ff::{BigInteger, PrimeField};
+use ark_std::rand::Rng;
+use ark_std::test_rng;
 
 use crate::updated_multilinear::*;
 use crate::transcript::*;
@@ -77,6 +79,16 @@ fn verify<F: PrimeField>(poly: &MultilinearPolynomial<F>, proof: &Proof<F>) -> b
 
     true
 }
+
+fn get_large_poly() -> MultilinearPolynomial<Fr> {
+    let n_vars = 20;
+    let size = 1 << n_vars;
+    let mut rng = test_rng();
+
+    let poly: Vec<Fr> = (0..size).map(|_| Fr::from(rng.gen_range(0..20))).collect();
+
+    MultilinearPolynomial::new ( evals, n_vars )
+} 
 
 // fn main(){
     
