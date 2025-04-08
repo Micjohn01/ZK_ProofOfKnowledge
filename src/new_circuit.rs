@@ -133,3 +133,34 @@ impl<F: PrimeField> Circuit<F> {
         usize::from_str_radix(&combined, 2).unwrap_or(0)
     }
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ark_bn254::Fq;
+
+    #[test]
+    fn test_circuit_evaluation() {
+        let input = vec![Fq::from(2), Fq::from(3), Fq::from(4), Fq::from(5)];
+
+        let gate1 = Gate::new(0, 1, 0, Operator::Mul);
+        let gate2 = Gate::new(0, 1, 0, Operator::Add);
+        let gate3 = Gate::new(2, 3, 1, Operator::Mul);
+
+        let layer0 = Layer::new(vec![gate1]);
+        let layer1 = Layer::new(vec![gate2, gate3]);
+
+        let mut circuit = Circuit::<Fq>::new(vec![layer0, layer1]);
+        let result = circuit.evaluate(input);
+
+        let expected_layers_evaluation = vec![
+            vec![Fq::from(100)],
+            vec![Fq::from(5), Fq::from(20)],
+            vec![Fq::from(2), Fq::from(3), Fq::from(4), Fq::from(5)],
+        ];
+
+        assert_eq!(result[0], Fq::from(100));
+        assert_eq!(circuit.layer_evaluations, expected_layers_evaluation);
+    }
+
+    
+}
